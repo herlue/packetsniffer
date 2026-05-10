@@ -7,6 +7,7 @@
 #include "pktinfo/ps_pktinfo_eth.h"
 #include "pktinfo/ps_pktinfo_arp.h"
 #include "pktinfo/ps_pktinfo_ip4.h"
+#include "pktinfo/ps_pktinfo_icmp.h"
 #include "pktinfo/ps_pktinfo_tcp.h"
 #include "pktinfo/ps_pktinfo_udp.h"
 
@@ -30,8 +31,9 @@ typedef struct
   ps_proto_l4_t proto_l4;
   union
   {
-    ps_pktinfo_tcp_t tcp;
-    ps_pktinfo_udp_t udp;
+    ps_pktinfo_icmp_t icmp;
+    ps_pktinfo_tcp_t  tcp;
+    ps_pktinfo_udp_t  udp;
   } l4;
 }
 ps_pktinfo_t;

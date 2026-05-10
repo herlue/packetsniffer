@@ -58,7 +58,7 @@ static void ps_pktinfo_format(char* buffer, size_t buffersize, const ps_pktinfo_
         ps_pktinfo_append(
           &buffer,
           &buffersize,
-          "[ARP(Req)] # Who has %s ? Tell %s\n",
+          "[ARP(Req)] # Who has %14s | Tell %17s\n",
           pktinfo->l3.arp.t_paddr,
           pktinfo->l3.arp.s_paddr
         );
@@ -69,7 +69,7 @@ static void ps_pktinfo_format(char* buffer, size_t buffersize, const ps_pktinfo_
         ps_pktinfo_append(
           &buffer,
           &buffersize,
-          "[ARP(Rep)] # %s is at %s\n",
+          "[ARP(Rep)] # %22s | is at %16s\n",
           pktinfo->l3.arp.s_paddr,
           pktinfo->l3.arp.s_haddr
         );
@@ -82,6 +82,16 @@ static void ps_pktinfo_format(char* buffer, size_t buffersize, const ps_pktinfo_
 
   switch (pktinfo->proto_l4)
   {
+    case PS_PROTO_L4_ICMP:
+      ps_pktinfo_append(
+        &buffer,
+        &buffersize,
+        "[ICMP    ] # Type: %16u | Code: %16u\n",
+        pktinfo->l4.icmp.type,
+        pktinfo->l4.icmp.code
+      );
+      break;
+
     case PS_PROTO_L4_TCP:
       ps_pktinfo_append(
         &buffer,

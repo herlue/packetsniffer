@@ -1,6 +1,7 @@
 #include <netinet/ip.h>
 #include <string.h>
 #include "../../include/handler/ps_pkthandler_ip4.h"
+#include "../../include/handler/ps_pkthandler_icmp.h"
 #include "../../include/handler/ps_pkthandler_tcp.h"
 #include "../../include/handler/ps_pkthandler_udp.h"
 #include "../../include/ps_util.h"
@@ -89,6 +90,9 @@ int ps_pkthandler_ip4(
 
   switch (iphdr->protocol)
   {
+    case IPPROTO_ICMP:
+      nextpkthandler = ps_pkthandler_icmp;
+      break;
     case IPPROTO_TCP:
       nextpkthandler = ps_pkthandler_tcp;
       break;
