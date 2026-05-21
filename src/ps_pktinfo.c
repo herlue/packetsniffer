@@ -4,9 +4,12 @@
 #include "../include/ps_error.h"
 #include "../include/util/ps_color.h"
 
-static void ps_pktinfo_format       (char*, size_t, const ps_pktinfo_t*);
-static int  ps_pktinfo_append       (char**, size_t*, const char* fmt, ...);
-static void ps_pktinfo_tcp_flags_str(uint8_t, char*);
+static void ps_pktinfo_format         (char*, size_t, const ps_pktinfo_t*);
+static int  ps_pktinfo_append         (char**, size_t*, const char* fmt, ...);
+static void ps_pktinfo_tcp_flags_str  (uint8_t, char*);
+static const char* ps_pktinfo_icmp_str(uint8_t, uint8_t);
+
+#define PS_PKTINFO_ICMP_STR_UNDEF "Undefined"
 
 void ps_pktinfo_clear(ps_pktinfo_t* pktinfo)
 {
@@ -86,9 +89,10 @@ static void ps_pktinfo_format(char* buffer, size_t buffersize, const ps_pktinfo_
       ps_pktinfo_append(
         &buffer,
         &buffersize,
-        "[ICMP    ] # Type: %16u | Code: %16u\n",
+        "[ICMP    ] # Type: %16u | Code: %16u\t%s\n",
         pktinfo->l4.icmp.type,
-        pktinfo->l4.icmp.code
+        pktinfo->l4.icmp.code,
+        ps_pktinfo_icmp_str(pktinfo->l4.icmp.type, pktinfo->l4.icmp.code)
       );
       break;
 
@@ -179,4 +183,87 @@ static void ps_pktinfo_tcp_flags_str(uint8_t flags, char* flagbuf)
     p += sprintf(p, PS_COLOR_RED  "RST " PS_COLOR_RESET);
   if (flags & PS_TCP_FLAG_ACK)
     p += sprintf(p, "ACK ");
+}
+
+static const char* ps_pktinfo_icmp_str(uint8_t type, uint8_t code)
+{
+  switch (type)
+  {
+    case 0:
+      switch (code)
+      {
+        case 0:
+          return "Echo Reply";
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    case 3:
+      switch (code)
+      {
+        case 0:
+          return PS_COLOR_RED "Destination Network Unreachable"  PS_COLOR_RESET;
+        case 1:
+          return PS_COLOR_RED "Destination Host Unreachable"     PS_COLOR_RESET;
+        case 2:
+          return PS_COLOR_RED "Destination Protocol Unreachable" PS_COLOR_RESET;
+        case 3:
+          return PS_COLOR_RED "Destination Port Unreachable"     PS_COLOR_RESET;
+        case 6:
+          return PS_COLOR_RED "Destination Network Unknown"      PS_COLOR_RESET;
+        case 7:
+          return PS_COLOR_RED "Destination Host Unknown"         PS_COLOR_RESET;
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    case 4:
+      switch (code)
+      {
+        case 0:
+          return "Source Quench (Congestion Control)";
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    case 8:
+      switch (code)
+      {
+        case 0:
+          return "Echo Request";
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    case 9:
+      switch (code)
+      {
+        case 0:
+          return "Router Advertisement";
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    case 10:
+      switch (code)
+      {
+        case 0:
+          return "Router Discovery";
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    case 11:
+      switch (code)
+      {
+        case 0:
+          return "TTL Expired";
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    case 12:
+      switch (code)
+      {
+        case 0:
+          return "IP Header Bad";
+        default:
+          return PS_PKTINFO_ICMP_STR_UNDEF;
+      }
+    default:
+      return PS_PKTINFO_ICMP_STR_UNDEF;
+  }
 }
